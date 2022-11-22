@@ -59,7 +59,7 @@ public class Chunk {
 			{ 2, 7, 6, 2, 3, 7, 0, 1, 9, -1, -1, -1, -1, -1, -1, -1 }, { 1, 6, 2, 1, 8, 6, 1, 9, 8, 8, 7, 6, -1, -1, -1, -1 }, { 10, 7, 6, 10, 1, 7, 1, 3, 7, -1, -1, -1, -1, -1, -1, -1 }, { 10, 7, 6, 1, 7, 10, 1, 8, 7, 1, 0, 8, -1, -1, -1, -1 },
 			{ 0, 3, 7, 0, 7, 10, 0, 10, 9, 6, 10, 7, -1, -1, -1, -1 }, { 7, 6, 10, 7, 10, 8, 8, 10, 9, -1, -1, -1, -1, -1, -1, -1 }, { 6, 8, 4, 11, 8, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }, { 3, 6, 11, 3, 0, 6, 0, 4, 6, -1, -1, -1, -1, -1, -1, -1 },
 			{ 8, 6, 11, 8, 4, 6, 9, 0, 1, -1, -1, -1, -1, -1, -1, -1 }, { 9, 4, 6, 9, 6, 3, 9, 3, 1, 11, 3, 6, -1, -1, -1, -1 }, { 6, 8, 4, 6, 11, 8, 2, 10, 1, -1, -1, -1, -1, -1, -1, -1 }, { 1, 2, 10, 3, 0, 11, 0, 6, 11, 0, 4, 6, -1, -1, -1, -1 },
-			{ 4, 0, 11, 8, 4, 6, 11, 0, 2, 9, 2, 10, 9, -1, -1, -1, -1 }, { 10, 9, 3, 10, 3, 2, 9, 4, 3, 11, 3, 6, 4, 6, 3, -1 }, { 8, 2, 3, 8, 4, 2, 4, 6, 2, -1, -1, -1, -1, -1, -1, -1 }, { 0, 4, 2, 4, 6, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
+			{ 4, 11, 8, 4, 6, 11, 0, 2, 9, 2, 10, 9, -1, -1, -1, -1 }, { 10, 9, 3, 10, 3, 2, 9, 4, 3, 11, 3, 6, 4, 6, 3, -1 }, { 8, 2, 3, 8, 4, 2, 4, 6, 2, -1, -1, -1, -1, -1, -1, -1 }, { 0, 4, 2, 4, 6, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
 			{ 1, 9, 0, 2, 3, 4, 2, 4, 6, 4, 3, 8, -1, -1, -1, -1 }, { 1, 9, 4, 1, 4, 2, 2, 4, 6, -1, -1, -1, -1, -1, -1, -1 }, { 8, 1, 3, 8, 6, 1, 8, 4, 6, 6, 10, 1, -1, -1, -1, -1 }, { 10, 1, 0, 10, 0, 6, 6, 0, 4, -1, -1, -1, -1, -1, -1, -1 }, { 4, 6, 3, 4, 3, 8, 6, 10, 3, 0, 3, 9, 10, 9, 3, -1 },
 			{ 10, 9, 4, 6, 10, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }, { 4, 9, 5, 7, 6, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 }, { 0, 8, 3, 4, 9, 5, 11, 7, 6, -1, -1, -1, -1, -1, -1, -1 }, { 5, 0, 1, 5, 4, 0, 7, 6, 11, -1, -1, -1, -1, -1, -1, -1 },
 			{ 11, 7, 6, 8, 3, 4, 3, 5, 4, 3, 1, 5, -1, -1, -1, -1 }, { 9, 5, 4, 10, 1, 2, 7, 6, 11, -1, -1, -1, -1, -1, -1, -1 }, { 6, 11, 7, 1, 2, 10, 0, 8, 3, 4, 9, 5, -1, -1, -1, -1 }, { 7, 6, 11, 5, 4, 10, 4, 2, 10, 4, 0, 2, -1, -1, -1, -1 },
@@ -95,6 +95,9 @@ public class Chunk {
 	private static HashMap<String, Chunk> chunkMap = new HashMap<>();
 
 	private static HashSet<String> renderList = new HashSet<>();
+
+	//after density modification, chunk keys get sent to this list. 
+	private static HashSet<String> chunkRebuildList = new HashSet<>();
 
 	private int x, y, z; //x, y, z of the chunk origin in grid space
 	private Model model;
@@ -141,8 +144,37 @@ public class Chunk {
 		this.model.setDefaultMaterial(new Material(new Vec3(1f), new Vec3(0.3f), 16f));
 	}
 
+	public static void update() {
+		for (String s : Chunk.chunkRebuildList) {
+			Chunk.buildChunk(s);
+		}
+		Chunk.chunkRebuildList.clear();
+	}
+
 	public static void setScene(int scene) {
 		Chunk.scene = scene;
+	}
+
+	public static int[] getChunkCoords(String key) {
+		String[] s = key.split(" ");
+		return new int[] { Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2]) };
+	}
+
+	public static void buildChunk(String key) {
+		int[] coords = Chunk.getChunkCoords(key);
+		int cx = coords[0];
+		int cy = coords[1];
+		int cz = coords[2];
+		if (!chunkMap.containsKey(key)) {
+			Chunk c = new Chunk(cx, cy, cz);
+			chunkMap.put(key, c);
+		}
+		Chunk c = Chunk.getChunk(cx, cy, cz);
+		c.build();
+
+		if (Chunk.renderList.contains(key)) {
+			c.render(Chunk.scene);
+		}
 	}
 
 	public static void buildChunk(int cx, int cy, int cz) {
@@ -350,16 +382,28 @@ public class Chunk {
 		densityMap.put(key, chunkDensity);
 	}
 
-	private static float getDensity(int x, int y, int z) {
-		String key = Chunk.getChunkKey(x / chunkSize, y / chunkSize, z / chunkSize);
+	private static float[][][] getDensityData(int cx, int cy, int cz) {
+		String key = Chunk.getChunkKey(cx, cy, cz);
 		if (!densityMap.containsKey(key)) {
-			buildDensity(x / chunkSize, y / chunkSize, z / chunkSize);
+			buildDensity(cx, cy, cz);
 		}
-		return densityMap.get(key)[x % chunkSize][y % chunkSize][z % chunkSize];
+		return densityMap.get(key);
+	}
+
+	private static float getDensity(int x, int y, int z) {
+		return Chunk.getDensityData(x / chunkSize, y / chunkSize, z / chunkSize)[x % chunkSize][y % chunkSize][z % chunkSize];
 	}
 
 	private static float getDensity(Vec3 v) {
 		return Chunk.getDensity((int) v.x, (int) v.y, (int) v.z);
+	}
+
+	public static void addDensity(int x, int y, int z, float d) {
+		float[][][] data = Chunk.getDensityData(x / chunkSize, y / chunkSize, z / chunkSize);
+		float result = data[x % chunkSize][y % chunkSize][z % chunkSize] + d;
+		data[x % chunkSize][y % chunkSize][z % chunkSize] = MathUtils.clamp(-1, 1, result);
+
+		Chunk.chunkRebuildList.add(Chunk.getChunkKey(x / chunkSize, y / chunkSize, z / chunkSize));
 	}
 
 }

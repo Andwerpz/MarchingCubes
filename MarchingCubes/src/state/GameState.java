@@ -197,6 +197,30 @@ public class GameState extends State {
 
 	@Override
 	public void update() {
+		Chunk.update();
+
+		float sphereRadius = 5;
+		Vec3 editPos = new Vec3(this.perspectiveScreen.getCamera().getPos());
+		editPos.addi(this.perspectiveScreen.getCamera().getFacing().mul(10));
+		for (float x = editPos.x - sphereRadius; x < editPos.x + sphereRadius; x++) {
+			for (float y = editPos.y - sphereRadius; y < editPos.y + sphereRadius; y++) {
+				for (float z = editPos.z - sphereRadius; z < editPos.z + sphereRadius; z++) {
+					Vec3 toCenter = new Vec3(new Vec3(x, y, z), editPos);
+					float distToCenter = toCenter.length();
+					if (distToCenter > sphereRadius) {
+						continue;
+					}
+
+					if (this.rightMouse) {
+						Chunk.addDensity((int) x, (int) y, (int) z, 0.2f / distToCenter);
+					}
+					if (this.leftMouse) {
+						Chunk.addDensity((int) x, (int) y, (int) z, -0.2f / distToCenter);
+					}
+
+				}
+			}
+		}
 
 		//		Chunk.buildChunk(0, 0, 0);
 		//		Chunk.buildChunk(0, 0, 0);
