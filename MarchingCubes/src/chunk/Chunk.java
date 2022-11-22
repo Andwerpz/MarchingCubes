@@ -284,17 +284,23 @@ public class Chunk {
 		return ans;
 	}
 
-	private static float groundLevel = 20;
+	private static float groundLevel = 60;
 
 	private static float generateDensity(int x, int y, int z) {
 
+		float result = 0;
+
 		float elevation = (float) NoiseGenerator.noise(x, z, 0.05, 1, 0.5, 2, 1) * 5;
+		elevation = Math.min(elevation, 1);
 
-		return groundLevel - y + elevation;
+		if (y + elevation > groundLevel) {
+			return -1;
+		}
 
-		//		float elevationOffset = y - groundLevel;
-		//
-		//		return (float) NoiseGenerator.noise(x, y, z, 0.05, 1, 0.5, 2, 1) + elevationOffset;
+		float cave = (float) NoiseGenerator.noise(x, y, z, 0.03, 1, 0.5, 2, 1);
+		result += cave;
+
+		return result;
 	}
 
 	private static String getChunkKey(int cx, int cy, int cz) {

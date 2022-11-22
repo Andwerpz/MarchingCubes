@@ -104,16 +104,18 @@ public class GameState extends State {
 		this.clearScene(WORLD_SCENE);
 		Light.addLight(WORLD_SCENE, new DirLight(new Vec3(0.3f, -1f, -0.5f), new Vec3(0.8f), 0.3f));
 		Scene.skyboxes.put(WORLD_SCENE, AssetManager.getSkybox("lake_skybox"));
-		player = new Player(new Vec3(0), WORLD_SCENE);
 
-		int numChunks = 10;
-		for (int i = 0; i < numChunks; i++) {
-			for (int j = 0; j < numChunks; j++) {
-				for (int k = 0; k < numChunks; k++) {
+		int vertChunks = 8;
+		int horizChunks = 8;
+		for (int i = 0; i < horizChunks; i++) {
+			for (int j = 0; j < vertChunks; j++) {
+				for (int k = 0; k < horizChunks; k++) {
 					Chunk.renderChunk(i, j, k, WORLD_SCENE);
 				}
 			}
 		}
+
+		player = new Player(new Vec3(64, 25, 64), WORLD_SCENE);
 
 		// -- DECAL SCENE --
 		this.clearScene(DECAL_SCENE);
