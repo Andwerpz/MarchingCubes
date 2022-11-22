@@ -8,6 +8,7 @@ import static org.lwjgl.opengl.GL33.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import graphics.VertexArray;
 import model.Model;
@@ -88,8 +89,12 @@ public class Chunk {
 	private static int chunkSize = 16;
 	private static float blockScale = 1f; //how big in the world is one grid cell
 
+	private static int scene;
+
 	private static HashMap<String, float[][][]> densityMap = new HashMap<>();
 	private static HashMap<String, Chunk> chunkMap = new HashMap<>();
+
+	private static HashSet<String> renderList = new HashSet<>();
 
 	private int x, y, z; //x, y, z of the chunk origin in grid space
 	private Model model;
@@ -99,11 +104,10 @@ public class Chunk {
 		this.x = cx * chunkSize;
 		this.y = cy * chunkSize;
 		this.z = cz * chunkSize;
-		this.buildChunk();
 	}
 
 	//creates the chunk model
-	private void buildChunk() {
+	private void build() {
 		ArrayList<Float> vertices = new ArrayList<>();
 		for (int i = 0; i < chunkSize; i++) {
 			for (int j = 0; j < chunkSize; j++) {
@@ -130,27 +134,50 @@ public class Chunk {
 
 		if (this.model != null) {
 			this.model.kill();
+			this.modelInstanceID = -1;
 		}
 
 		this.model = new Model(vertexArray, TextureMaterial.defaultTextureMaterial());
 		this.model.setDefaultMaterial(new Material(new Vec3(1f), new Vec3(0.3f), 16f));
 	}
 
-	public static Chunk getChunk(int cx, int cy, int cz) {
+	public static void setScene(int scene) {
+		Chunk.scene = scene;
+	}
+
+	public static void buildChunk(int cx, int cy, int cz) {
 		String key = Chunk.getChunkKey(cx, cy, cz);
 		if (!chunkMap.containsKey(key)) {
 			Chunk c = new Chunk(cx, cy, cz);
 			chunkMap.put(key, c);
+		}
+		Chunk c = Chunk.getChunk(cx, cy, cz);
+		c.build();
+
+		if (Chunk.renderList.contains(key)) {
+			c.render(Chunk.scene);
+		}
+	}
+
+	public static Chunk getChunk(int cx, int cy, int cz) {
+		String key = Chunk.getChunkKey(cx, cy, cz);
+		if (!chunkMap.containsKey(key)) {
+			Chunk.buildChunk(cx, cy, cz);
 		}
 		return chunkMap.get(key);
 	}
 
 	public static void renderChunk(int cx, int cy, int cz, int scene) {
 		Chunk.getChunk(cx, cy, cz).render(scene);
+		Chunk.renderList.add(Chunk.getChunkKey(cx, cy, cz));
 	}
 
 	public static void derenderChunk(int cx, int cy, int cz) {
-		Chunk.getChunk(cx, cy, cz).derender();
+		String key = Chunk.getChunkKey(cx, cy, cz);
+		if (Chunk.renderList.contains(key)) {
+			Chunk.getChunk(cx, cy, cz).derender();
+		}
+		Chunk.renderList.remove(key);
 	}
 
 	private void render(int scene) {

@@ -105,6 +105,8 @@ public class GameState extends State {
 		Light.addLight(WORLD_SCENE, new DirLight(new Vec3(0.3f, -1f, -0.5f), new Vec3(0.8f), 0.3f));
 		Scene.skyboxes.put(WORLD_SCENE, AssetManager.getSkybox("lake_skybox"));
 
+		Chunk.setScene(WORLD_SCENE);
+
 		int vertChunks = 8;
 		int horizChunks = 8;
 		for (int i = 0; i < horizChunks; i++) {
@@ -195,6 +197,15 @@ public class GameState extends State {
 
 	@Override
 	public void update() {
+
+		//		Chunk.buildChunk(0, 0, 0);
+		//		Chunk.buildChunk(0, 0, 0);
+		//		Chunk.buildChunk(0, 0, 0);
+		//		Chunk.buildChunk(0, 0, 0);
+		//		Chunk.buildChunk(0, 0, 0);
+		//		Chunk.buildChunk(0, 0, 0);
+		//		Chunk.buildChunk(0, 0, 0);
+		//		Chunk.buildChunk(0, 0, 0);
 
 		// -- MENU --
 		Input.inputsHovered(uiScreen.getEntityIDAtMouse());

@@ -35,7 +35,7 @@ public class Player extends Entity {
 	private static float runningSpeed = 0.05f;
 	private static float walkingSpeed = 0.02f; //TBD
 
-	private static float noclipSpeed = 0.05f;
+	private static float noclipSpeed = 0.2f;
 	private static float noclipFriction = 0.7f;
 
 	public Vec3 pos, vel;
