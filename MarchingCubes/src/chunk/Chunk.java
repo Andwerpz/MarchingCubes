@@ -144,103 +144,6 @@ public class Chunk {
 		this.model.setDefaultMaterial(new Material(new Vec3(1f), new Vec3(0.3f), 16f));
 	}
 
-	public static void update() {
-		for (String s : Chunk.chunkRebuildList) {
-			Chunk.buildChunk(s);
-		}
-		Chunk.chunkRebuildList.clear();
-	}
-
-	public static void setScene(int scene) {
-		Chunk.scene = scene;
-	}
-
-	public static int[] getChunkCoords(String key) {
-		String[] s = key.split(" ");
-		return new int[] { Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2]) };
-	}
-
-	public static void buildChunk(String key) {
-		int[] coords = Chunk.getChunkCoords(key);
-		int cx = coords[0];
-		int cy = coords[1];
-		int cz = coords[2];
-		if (!chunkMap.containsKey(key)) {
-			Chunk c = new Chunk(cx, cy, cz);
-			chunkMap.put(key, c);
-		}
-		Chunk c = Chunk.getChunk(cx, cy, cz);
-		c.build();
-
-		if (Chunk.renderList.contains(key)) {
-			c.render(Chunk.scene);
-		}
-	}
-
-	public static void buildChunk(int cx, int cy, int cz) {
-		String key = Chunk.getChunkKey(cx, cy, cz);
-		if (!chunkMap.containsKey(key)) {
-			Chunk c = new Chunk(cx, cy, cz);
-			chunkMap.put(key, c);
-		}
-		Chunk c = Chunk.getChunk(cx, cy, cz);
-		c.build();
-
-		if (Chunk.renderList.contains(key)) {
-			c.render(Chunk.scene);
-		}
-	}
-
-	public static Chunk getChunk(int cx, int cy, int cz) {
-		String key = Chunk.getChunkKey(cx, cy, cz);
-		if (!chunkMap.containsKey(key)) {
-			Chunk.buildChunk(cx, cy, cz);
-		}
-		return chunkMap.get(key);
-	}
-
-	public static void renderChunk(int cx, int cy, int cz, int scene) {
-		Chunk.getChunk(cx, cy, cz).render(scene);
-		Chunk.renderList.add(Chunk.getChunkKey(cx, cy, cz));
-	}
-
-	public static void derenderChunk(int cx, int cy, int cz) {
-		String key = Chunk.getChunkKey(cx, cy, cz);
-		if (Chunk.renderList.contains(key)) {
-			Chunk.getChunk(cx, cy, cz).derender();
-		}
-		Chunk.renderList.remove(key);
-	}
-
-	private void render(int scene) {
-		if (this.getModelInstanceID() != -1) { //already rendered
-			return;
-		}
-
-		Mat4 modelMat4 = Mat4.identity();
-		modelMat4.muli(Mat4.translate(new Vec3(this.x, this.y, this.z)));
-		modelMat4.muli(Mat4.scale(Chunk.blockScale));
-
-		Model.addInstance(this.model, modelMat4, scene);
-	}
-
-	private void derender() {
-		if (this.getModelInstanceID() == -1) { //already derendered
-			return;
-		}
-
-		Model.removeInstance(this.getModelInstanceID());
-		this.modelInstanceID = -1;
-	}
-
-	private Model getModel() {
-		return this.model;
-	}
-
-	private long getModelInstanceID() {
-		return this.modelInstanceID;
-	}
-
 	private ArrayList<Float> buildCube(int x, int y, int z) {
 
 		Vec3 v0 = new Vec3(x + 0, y + 0, z + 0);
@@ -343,6 +246,112 @@ public class Chunk {
 		return ans;
 	}
 
+	private void render(int scene) {
+		if (this.getModelInstanceID() != -1) { //already rendered
+			return;
+		}
+
+		Mat4 modelMat4 = Mat4.identity();
+		modelMat4.muli(Mat4.translate(new Vec3(this.x, this.y, this.z)));
+		modelMat4.muli(Mat4.scale(Chunk.blockScale));
+
+		Model.addInstance(this.model, modelMat4, scene);
+	}
+
+	private void derender() {
+		if (this.getModelInstanceID() == -1) { //already derendered
+			return;
+		}
+
+		Model.removeInstance(this.getModelInstanceID());
+		this.modelInstanceID = -1;
+	}
+
+	private Model getModel() {
+		return this.model;
+	}
+
+	private long getModelInstanceID() {
+		return this.modelInstanceID;
+	}
+
+	public static void update() {
+		for (String s : Chunk.chunkRebuildList) {
+			Chunk.buildChunk(s);
+		}
+		Chunk.chunkRebuildList.clear();
+	}
+
+	public static void setScene(int scene) {
+		Chunk.scene = scene;
+	}
+
+	public static int[] getChunkCoords(int x, int y, int z) {
+		return new int[] { Math.floorDiv(x, chunkSize), Math.floorDiv(y, chunkSize), Math.floorDiv(z, chunkSize) };
+	}
+
+	public static int[] getChunkCoords(String key) {
+		String[] s = key.split(" ");
+		return new int[] { Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2]) };
+	}
+
+	public static int[] getBlockCoords(int x, int y, int z) {
+		return new int[] { Math.floorMod(x, chunkSize), Math.floorMod(y, chunkSize), Math.floorMod(z, chunkSize) };
+	}
+
+	public static Chunk getChunk(int cx, int cy, int cz) {
+		String key = Chunk.getChunkKey(cx, cy, cz);
+		if (!chunkMap.containsKey(key)) {
+			Chunk.buildChunk(cx, cy, cz);
+		}
+		return chunkMap.get(key);
+	}
+
+	public static Chunk getChunk(int[] cc) {
+		return Chunk.getChunk(cc[0], cc[1], cc[2]);
+	}
+
+	public static void buildChunk(String key) {
+		int[] cc = Chunk.getChunkCoords(key);
+		if (!chunkMap.containsKey(key)) {
+			Chunk c = new Chunk(cc[0], cc[1], cc[2]);
+			chunkMap.put(key, c);
+		}
+		Chunk c = Chunk.getChunk(cc);
+		c.build();
+
+		if (Chunk.renderList.contains(key)) {
+			c.render(Chunk.scene);
+		}
+	}
+
+	public static void buildChunk(int cx, int cy, int cz) {
+		String key = Chunk.getChunkKey(cx, cy, cz);
+		if (!chunkMap.containsKey(key)) {
+			Chunk c = new Chunk(cx, cy, cz);
+			chunkMap.put(key, c);
+		}
+		Chunk c = Chunk.getChunk(cx, cy, cz);
+		c.build();
+
+		if (Chunk.renderList.contains(key)) {
+			c.render(Chunk.scene);
+		}
+	}
+
+	public static void renderChunk(int cx, int cy, int cz, int scene) {
+		Chunk.getChunk(cx, cy, cz).render(scene);
+		Chunk.renderList.add(Chunk.getChunkKey(cx, cy, cz));
+	}
+
+	public static void derenderChunk(int cx, int cy, int cz) {
+		String key = Chunk.getChunkKey(cx, cy, cz);
+		if (Chunk.renderList.contains(key)) {
+			Chunk.getChunk(cx, cy, cz).derender();
+		}
+		Chunk.renderList.remove(key);
+	}
+
 	private static float groundLevel = 60;
 
 	private static float generateDensity(int x, int y, int z) {
@@ -360,6 +369,10 @@ public class Chunk {
 		result += cave;
 
 		return result;
+	}
+
+	private static String getChunkKey(int[] cc) {
+		return cc[0] + " " + cc[1] + " " + cc[2];
 	}
 
 	private static String getChunkKey(int cx, int cy, int cz) {
@@ -385,13 +398,19 @@ public class Chunk {
 	private static float[][][] getDensityData(int cx, int cy, int cz) {
 		String key = Chunk.getChunkKey(cx, cy, cz);
 		if (!densityMap.containsKey(key)) {
-			buildDensity(cx, cy, cz);
+			Chunk.buildDensity(cx, cy, cz);
 		}
 		return densityMap.get(key);
 	}
 
+	private static float[][][] getDensityData(int[] cc) {
+		return Chunk.getDensityData(cc[0], cc[1], cc[2]);
+	}
+
 	private static float getDensity(int x, int y, int z) {
-		return Chunk.getDensityData(x / chunkSize, y / chunkSize, z / chunkSize)[x % chunkSize][y % chunkSize][z % chunkSize];
+		int[] cc = Chunk.getChunkCoords(x, y, z);
+		int[] bc = Chunk.getBlockCoords(x, y, z);
+		return Chunk.getDensityData(cc)[bc[0]][bc[1]][bc[2]];
 	}
 
 	private static float getDensity(Vec3 v) {
@@ -399,11 +418,14 @@ public class Chunk {
 	}
 
 	public static void addDensity(int x, int y, int z, float d) {
-		float[][][] data = Chunk.getDensityData(x / chunkSize, y / chunkSize, z / chunkSize);
-		float result = data[x % chunkSize][y % chunkSize][z % chunkSize] + d;
-		data[x % chunkSize][y % chunkSize][z % chunkSize] = MathUtils.clamp(-1, 1, result);
+		int[] cc = Chunk.getChunkCoords(x, y, z);
+		int[] bc = Chunk.getBlockCoords(x, y, z);
 
-		Chunk.chunkRebuildList.add(Chunk.getChunkKey(x / chunkSize, y / chunkSize, z / chunkSize));
+		float[][][] data = Chunk.getDensityData(cc);
+		float result = data[bc[0]][bc[1]][bc[2]] + d;
+		data[bc[0]][bc[1]][bc[2]] = MathUtils.clamp(-1, 1, result);
+
+		Chunk.chunkRebuildList.add(Chunk.getChunkKey(cc));
 	}
 
 }
