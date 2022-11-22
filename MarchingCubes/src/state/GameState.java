@@ -19,6 +19,7 @@ import java.util.Queue;
 import java.util.Stack;
 
 import audio.Sound;
+import chunk.Chunk;
 import entity.Capsule;
 import entity.Entity;
 import graphics.Framebuffer;
@@ -101,11 +102,18 @@ public class GameState extends State {
 
 		// -- WORLD SCENE --
 		this.clearScene(WORLD_SCENE);
-		long mapID = Model.addInstance(AssetManager.getModel("dust2"), Mat4.rotateX((float) Math.toRadians(90)).mul(Mat4.scale((float) 0.05)), WORLD_SCENE);
-		Model.activateCollisionMesh(mapID);
 		Light.addLight(WORLD_SCENE, new DirLight(new Vec3(0.3f, -1f, -0.5f), new Vec3(0.8f), 0.3f));
 		Scene.skyboxes.put(WORLD_SCENE, AssetManager.getSkybox("lake_skybox"));
 		player = new Player(new Vec3(0), WORLD_SCENE);
+
+		int numChunks = 10;
+		for (int i = 0; i < numChunks; i++) {
+			for (int j = 0; j < numChunks; j++) {
+				for (int k = 0; k < numChunks; k++) {
+					Chunk.renderChunk(i, j, k, WORLD_SCENE);
+				}
+			}
+		}
 
 		// -- DECAL SCENE --
 		this.clearScene(DECAL_SCENE);

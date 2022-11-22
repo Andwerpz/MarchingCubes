@@ -147,6 +147,18 @@ public class Model {
 		this.setTextureMaterial(m, 0);
 	}
 
+	public void setDefaultMaterial(Material m, int index) {
+		if (index >= this.defaultMaterials.size()) {
+			System.err.println("Material index out of bounds");
+			return;
+		}
+		this.defaultMaterials.set(index, m);
+	}
+
+	public void setDefaultMaterial(Material m) {
+		this.setDefaultMaterial(m, 0);
+	}
+
 	public void create() {
 	}
 

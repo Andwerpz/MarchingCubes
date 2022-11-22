@@ -213,8 +213,9 @@ public class PerspectiveScreen extends Screen {
 		geometryBuffer.bind();
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
+		//		glEnable(GL_CULL_FACE);
+		//		glCullFace(GL_BACK);
+		glDisable(GL_CULL_FACE);
 		glPolygonMode(GL_FRONT, GL_FILL);
 		glDisable(GL_BLEND);
 		glClearDepth(1); // maximum value

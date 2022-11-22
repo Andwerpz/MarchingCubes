@@ -21,6 +21,8 @@ uniform sampler2D shadowMap;
 uniform sampler2D shadowBackfaceMap;	//is a backface or not
 uniform mat4 lightSpace_matrix;
 
+uniform int doShadows;
+
 //point shadows
 uniform samplerCube shadowCubemap;
 uniform float shadowCubemapFar;
@@ -197,6 +199,11 @@ void main()
 		    }
 		}
 		shadow /= float(samples);  
+	}
+	
+	
+	if(doShadows != 1) {
+		shadow = 0;
 	}
 	
 	//account for shadows
