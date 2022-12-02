@@ -141,7 +141,7 @@ public class Chunk {
 		}
 
 		this.model = new Model(vertexArray, TextureMaterial.defaultTextureMaterial());
-		this.model.setDefaultMaterial(new Material(new Vec3(1f), new Vec3(0.3f), 16f));
+		this.model.setDefaultMaterial(new Material(new Vec3(1f), new Vec3(0.3f), 4f));
 	}
 
 	private ArrayList<Float> buildCube(int x, int y, int z) {
@@ -358,17 +358,20 @@ public class Chunk {
 
 		float result = 0;
 
-		float elevation = (float) NoiseGenerator.noise(x, z, 0.05, 1, 0.5, 2, 1) * 5;
-		elevation = Math.min(elevation, 1);
+		float elevation = (float) NoiseGenerator.noise(x, z, 0.05, 1, 0.5, 2, 3) * 10;
 
-		if (y + elevation > groundLevel) {
-			return -1;
-		}
+		result = groundLevel + elevation - y;
 
-		float cave = (float) NoiseGenerator.noise(x, y, z, 0.03, 1, 0.5, 2, 1);
-		result += cave;
+		return MathUtils.clamp(-1, 1, result);
 
-		return result;
+		//		if (y + elevation > groundLevel) {
+		//			return -1;
+		//		}
+		//
+		//		float cave = (float) NoiseGenerator.noise(x, y, z, 0.03, 1, 0.5, 2, 1);
+		//		result += cave;
+		//
+		//		return result;
 	}
 
 	private static String getChunkKey(int[] cc) {
@@ -423,6 +426,25 @@ public class Chunk {
 
 		float[][][] data = Chunk.getDensityData(cc);
 		float result = data[bc[0]][bc[1]][bc[2]] + d;
+		data[bc[0]][bc[1]][bc[2]] = MathUtils.clamp(-1, 1, result);
+
+		Chunk.chunkRebuildList.add(Chunk.getChunkKey(cc));
+	}
+
+	//if adding is true, will only make density go up.
+	//if adding is false, will only make density go down. 
+	public static void easeDensity(int x, int y, int z, float target, float weight, boolean adding) {
+		int[] cc = Chunk.getChunkCoords(x, y, z);
+		int[] bc = Chunk.getBlockCoords(x, y, z);
+
+		float[][][] data = Chunk.getDensityData(cc);
+		float add = (target - data[bc[0]][bc[1]][bc[2]]) * weight;
+
+		if ((adding && add < 0) || (!adding && add > 0)) {
+			add = 0;
+		}
+
+		float result = data[bc[0]][bc[1]][bc[2]] + add;
 		data[bc[0]][bc[1]][bc[2]] = MathUtils.clamp(-1, 1, result);
 
 		Chunk.chunkRebuildList.add(Chunk.getChunkKey(cc));

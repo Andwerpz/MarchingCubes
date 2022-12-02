@@ -117,7 +117,7 @@ public class GameState extends State {
 			}
 		}
 
-		player = new Player(new Vec3(64, 25, 64), WORLD_SCENE);
+		player = new Player(new Vec3(64, 70, 64), WORLD_SCENE);
 
 		// -- DECAL SCENE --
 		this.clearScene(DECAL_SCENE);
@@ -212,24 +212,15 @@ public class GameState extends State {
 					}
 
 					if (this.rightMouse) {
-						Chunk.addDensity((int) x, (int) y, (int) z, 0.2f / distToCenter);
+						Chunk.easeDensity((int) x, (int) y, (int) z, (sphereRadius / 2f) / distToCenter, 0.05f, true);
 					}
 					if (this.leftMouse) {
-						Chunk.addDensity((int) x, (int) y, (int) z, -0.2f / distToCenter);
+						Chunk.easeDensity((int) x, (int) y, (int) z, -(sphereRadius / 2f) / distToCenter, 0.05f, false);
 					}
 
 				}
 			}
 		}
-
-		//		Chunk.buildChunk(0, 0, 0);
-		//		Chunk.buildChunk(0, 0, 0);
-		//		Chunk.buildChunk(0, 0, 0);
-		//		Chunk.buildChunk(0, 0, 0);
-		//		Chunk.buildChunk(0, 0, 0);
-		//		Chunk.buildChunk(0, 0, 0);
-		//		Chunk.buildChunk(0, 0, 0);
-		//		Chunk.buildChunk(0, 0, 0);
 
 		// -- MENU --
 		Input.inputsHovered(uiScreen.getEntityIDAtMouse());
