@@ -69,7 +69,7 @@ public class Model {
 	private HashMap<Integer, HashMap<Long, Mat4>> modelMats;
 	private HashMap<Integer, HashMap<Long, ArrayList<Material>>> materials;
 
-	private ArrayList<Integer> scenesNeedingUpdates;
+	private HashSet<Integer> scenesNeedingUpdates;
 
 	// per model 3D vertex information
 	protected ArrayList<VertexArray> meshes;
@@ -112,7 +112,7 @@ public class Model {
 		for (VertexArray vao : meshes) {
 			this.collisionMeshes.add(new CollisionMesh(vao));
 		}
-		this.scenesNeedingUpdates = new ArrayList<Integer>();
+		this.scenesNeedingUpdates = new HashSet<Integer>();
 		this.modelMats = new HashMap<Integer, HashMap<Long, Mat4>>();
 		this.materials = new HashMap<Integer, HashMap<Long, ArrayList<Material>>>();
 		models.add(this);
